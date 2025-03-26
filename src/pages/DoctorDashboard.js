@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 
 function DoctorDashboard({ user }) {
@@ -23,3 +24,4 @@ function DoctorDashboard({ user }) {
 }
 
 export default DoctorDashboard;
+
