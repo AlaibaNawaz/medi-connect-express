@@ -2,9 +2,9 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home.jsx';
-import Login from './pages/Login';
-import PatientDashboard from './pages/PatientDashboard';
-import DoctorDashboard from './pages/DoctorDashboard';
+import Login from './pages/Login.jsx';
+import PatientDashboard from './pages/PatientDashboard.jsx';
+import DoctorDashboard from './pages/DoctorDashboard.jsx';
 import AdminDashboard from './pages/AdminDashboard.jsx';
 
 function App() {
