@@ -1,9 +1,10 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Settings, ChevronDown, User, Shield, BarChart, Search, Check, X, Edit } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { Users, Settings, ChevronDown, User, Shield, BarChart, Search, Check, X, Edit, Calendar, Star, FileText, Download } from 'lucide-react';
 
-function AdminDashboard({ user }) {
+function AdminDashboard() {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   
   // Sample data for UI demonstration
