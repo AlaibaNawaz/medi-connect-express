@@ -16,6 +16,7 @@ import AppointmentBooking from './pages/AppointmentBooking.jsx';
 import PatientProfile from './pages/PatientProfile.jsx';
 import AppointmentManagement from './pages/AppointmentManagement.jsx';
 import PrescriptionManagement from './pages/PrescriptionManagement.jsx';
+import NotFound from './pages/NotFound.jsx';
 
 function App() {
   return (
@@ -92,6 +93,9 @@ function App() {
                 </ProtectedRoute>
               } 
             />
+
+            {/* Add a catch-all 404 route */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
       </AuthProvider>
