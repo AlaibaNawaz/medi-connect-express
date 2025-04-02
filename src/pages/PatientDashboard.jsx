@@ -2,8 +2,10 @@
 import React, { useState } from 'react';
 import { Calendar, Search, FileText, User, Star, Download, Upload, Clock } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
-function PatientDashboard({ user }) {
+function PatientDashboard() {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('appointments');
   const navigate = useNavigate();
 
