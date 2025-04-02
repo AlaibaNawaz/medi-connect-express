@@ -1,12 +1,27 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { toast } from '../components/ui/use-toast';
 
-function Login({ setUser }) {
+function Login() {
   const [userType, setUserType] = useState('patient');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const { login } = useAuth();
+  const location = useLocation();
+  
+  // Check if there's a message in the location state (e.g., from registration)
+  React.useEffect(() => {
+    if (location.state?.message) {
+      toast({
+        title: "Notice",
+        description: location.state.message
+      });
+    }
+  }, [location]);
 
   // Mock credentials
   const mockCredentials = {
@@ -15,26 +30,20 @@ function Login({ setUser }) {
     admin: { email: 'admin@example.com', password: 'admin123' }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     
-    // Mock authentication - in a real app, you would validate with a backend
-    const mockUser = {
-      id: '123',
-      email,
-      userType,
-      name: userType === 'doctor' ? 'Dr. John Smith' : 'John Doe',
-    };
-    
-    setUser(mockUser);
-    
-    // Redirect based on user type
-    if (userType === 'patient') {
-      navigate('/patient-dashboard');
-    } else if (userType === 'doctor') {
-      navigate('/doctor-dashboard');
-    } else if (userType === 'admin') {
-      navigate('/admin-dashboard');
+    try {
+      await login(email, password, userType);
+    } catch (error) {
+      toast({
+        title: "Login Failed",
+        description: error.message || "An error occurred during login",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -118,11 +127,26 @@ function Login({ setUser }) {
           
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
+            disabled={isLoading}
+            className={`w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-300 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
           >
-            Login
+            {isLoading ? 'Logging in...' : 'Login'}
           </button>
         </form>
+        
+        <div className="mt-6 text-center">
+          <p className="text-gray-600">
+            Don't have an account?
+          </p>
+          <div className="mt-2 flex justify-center space-x-4">
+            <Link to="/patient-signup" className="text-blue-600 hover:underline">
+              Register as Patient
+            </Link>
+            <Link to="/doctor-signup" className="text-blue-600 hover:underline">
+              Register as Doctor
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );

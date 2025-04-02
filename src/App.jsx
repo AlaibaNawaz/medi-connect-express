@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home.jsx';
 import Login from './pages/Login.jsx';
@@ -8,23 +8,93 @@ import DoctorDashboard from './pages/DoctorDashboard.jsx';
 import AdminDashboard from './pages/AdminDashboard.jsx';
 import PatientSignup from './pages/PatientSignup.jsx';
 import DoctorSignup from './pages/DoctorSignup.jsx';
+import { AuthProvider } from './contexts/AuthContext.jsx';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
+import DoctorProfile from './pages/DoctorProfile.jsx';
+import DoctorList from './pages/DoctorList.jsx';
+import AppointmentBooking from './pages/AppointmentBooking.jsx';
+import PatientProfile from './pages/PatientProfile.jsx';
+import AppointmentManagement from './pages/AppointmentManagement.jsx';
+import PrescriptionManagement from './pages/PrescriptionManagement.jsx';
 
 function App() {
-  const [user, setUser] = useState(null);
-
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login setUser={setUser} />} />
-          <Route path="/patient-signup" element={<PatientSignup />} />
-          <Route path="/doctor-signup" element={<DoctorSignup />} />
-          <Route path="/patient-dashboard" element={<PatientDashboard user={user} />} />
-          <Route path="/doctor-dashboard" element={<DoctorDashboard user={user} />} />
-          <Route path="/admin-dashboard" element={<AdminDashboard user={user} />} />
-        </Routes>
-      </div>
+      <AuthProvider>
+        <div className="min-h-screen bg-gray-50">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/patient-signup" element={<PatientSignup />} />
+            <Route path="/doctor-signup" element={<DoctorSignup />} />
+            <Route path="/doctor-list" element={<DoctorList />} />
+            <Route path="/doctor/:doctorId" element={<DoctorProfile />} />
+            
+            <Route 
+              path="/patient-dashboard" 
+              element={
+                <ProtectedRoute userType="patient">
+                  <PatientDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/doctor-dashboard" 
+              element={
+                <ProtectedRoute userType="doctor">
+                  <DoctorDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/admin-dashboard" 
+              element={
+                <ProtectedRoute userType="admin">
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/patient-profile" 
+              element={
+                <ProtectedRoute userType="patient">
+                  <PatientProfile />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/book-appointment/:doctorId" 
+              element={
+                <ProtectedRoute userType="patient">
+                  <AppointmentBooking />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/appointments" 
+              element={
+                <ProtectedRoute>
+                  <AppointmentManagement />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/prescriptions" 
+              element={
+                <ProtectedRoute>
+                  <PrescriptionManagement />
+                </ProtectedRoute>
+              } 
+            />
+          </Routes>
+        </div>
+      </AuthProvider>
     </Router>
   );
 }

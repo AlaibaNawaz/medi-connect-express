@@ -1,53 +1,40 @@
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Mail, Lock, MapPin, Calendar, Book, Upload } from 'lucide-react';
+import { User, Mail, Lock, Calendar, Briefcase, MapPin, Clock, Upload } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { toast } from '../components/ui/use-toast';
 
 function DoctorSignup() {
   const [formData, setFormData] = useState({
-    fullName: '',
+    name: '',
     email: '',
     password: '',
     confirmPassword: '',
     specialization: '',
     location: '',
     bio: '',
+    experience: '',
+    education: '',
+    fees: '',
+    availableDays: [],
+    availableTimeSlots: [],
     profileImage: null
-  });
-  
-  const [availability, setAvailability] = useState({
-    monday: { morning: false, afternoon: false, evening: false },
-    tuesday: { morning: false, afternoon: false, evening: false },
-    wednesday: { morning: false, afternoon: false, evening: false },
-    thursday: { morning: false, afternoon: false, evening: false },
-    friday: { morning: false, afternoon: false, evening: false },
-    saturday: { morning: false, afternoon: false, evening: false },
-    sunday: { morning: false, afternoon: false, evening: false },
   });
   
   const [errors, setErrors] = useState({});
   const [step, setStep] = useState(1);
-  const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const specializations = [
-    'Cardiology', 'Dermatology', 'Endocrinology', 'Gastroenterology', 'Neurology',
-    'Obstetrics', 'Oncology', 'Ophthalmology', 'Orthopedics', 'Pediatrics',
-    'Psychiatry', 'Radiology', 'Urology'
-  ];
+  const navigate = useNavigate();
+  const { register } = useAuth();
+  
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const timeSlots = ['9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'];
   
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-  };
-  
-  const handleAvailabilityChange = (day, timeSlot) => {
-    setAvailability({
-      ...availability,
-      [day]: {
-        ...availability[day],
-        [timeSlot]: !availability[day][timeSlot]
-      }
-    });
   };
   
   const handleImageChange = (e) => {
@@ -59,10 +46,26 @@ function DoctorSignup() {
     }
   };
   
+  const handleCheckboxChange = (e, array) => {
+    const { name, value, checked } = e.target;
+    
+    if (checked) {
+      setFormData({
+        ...formData,
+        [name]: [...formData[name], value]
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: formData[name].filter(item => item !== value)
+      });
+    }
+  };
+  
   const validateStep1 = () => {
     const newErrors = {};
     
-    if (!formData.fullName) newErrors.fullName = 'Full name is required';
+    if (!formData.name) newErrors.name = 'Full name is required';
     if (!formData.email) newErrors.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
     
@@ -82,13 +85,21 @@ function DoctorSignup() {
     
     if (!formData.specialization) newErrors.specialization = 'Specialization is required';
     if (!formData.location) newErrors.location = 'Location is required';
-    if (!formData.bio) newErrors.bio = 'Bio is required';
     
-    const hasAvailability = Object.values(availability).some(day => 
-      Object.values(day).some(slot => slot === true)
-    );
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+  
+  const validateStep3 = () => {
+    const newErrors = {};
     
-    if (!hasAvailability) newErrors.availability = 'At least one availability slot is required';
+    if (formData.availableDays.length === 0) {
+      newErrors.availableDays = 'Please select at least one available day';
+    }
+    
+    if (formData.availableTimeSlots.length === 0) {
+      newErrors.availableTimeSlots = 'Please select at least one available time slot';
+    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -106,14 +117,55 @@ function DoctorSignup() {
     setStep(step - 1);
   };
   
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // In a real app, you would send this data to your backend
-    console.log('Form data submitted:', { ...formData, availability });
+    if (!validateStep3()) return;
     
-    // Mock successful registration
-    navigate('/login', { state: { message: 'Registration successful! Please login with your credentials.', userType: 'doctor' } });
+    setIsSubmitting(true);
+    
+    try {
+      // Convert profile image to URL (in a real app, you'd upload to a server)
+      let imageUrl = null;
+      if (formData.profileImage) {
+        imageUrl = URL.createObjectURL(formData.profileImage);
+      }
+      
+      // Register the doctor
+      const success = await register({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        specialization: formData.specialization,
+        location: formData.location,
+        bio: formData.bio,
+        experience: formData.experience,
+        education: formData.education,
+        fees: formData.fees,
+        availableDays: formData.availableDays,
+        availableTimeSlots: formData.availableTimeSlots,
+        image: imageUrl || "https://randomuser.me/api/portraits/men/32.jpg", // Default image if none provided
+        rating: 0,
+        reviews: [],
+        available: true
+      }, 'doctor');
+      
+      if (success) {
+        toast({
+          title: "Registration Successful",
+          description: "Your doctor account has been created. You can now access your dashboard.",
+        });
+        navigate('/doctor-dashboard');
+      }
+    } catch (error) {
+      toast({
+        title: "Registration Failed",
+        description: error.message || "An error occurred during registration",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   return (
@@ -122,7 +174,7 @@ function DoctorSignup() {
         <div className="p-8">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900">Doctor Registration</h2>
-            <p className="mt-2 text-gray-600">Join our network of healthcare professionals</p>
+            <p className="mt-2 text-gray-600">Join our healthcare platform as a healthcare provider</p>
           </div>
           
           <div className="mb-8">
@@ -134,7 +186,7 @@ function DoctorSignup() {
                 2. Professional Details
               </div>
               <div className={`flex-1 text-center py-2 ${step >= 3 ? 'text-blue-600 font-medium' : 'text-gray-400'}`}>
-                3. Review & Submit
+                3. Availability & Submit
               </div>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
@@ -146,22 +198,22 @@ function DoctorSignup() {
             {step === 1 && (
               <div className="space-y-6">
                 <div>
-                  <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">Full Name</label>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">Full Name</label>
                   <div className="mt-1 relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <User className="h-5 w-5 text-gray-400" />
                     </div>
                     <input
                       type="text"
-                      id="fullName"
-                      name="fullName"
-                      value={formData.fullName}
+                      id="name"
+                      name="name"
+                      value={formData.name}
                       onChange={handleChange}
-                      className={`block w-full pl-10 pr-3 py-2 border ${errors.fullName ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500`}
-                      placeholder="Dr. John Smith"
+                      className={`block w-full pl-10 pr-3 py-2 border ${errors.name ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500`}
+                      placeholder="Dr. John Doe"
                     />
                   </div>
-                  {errors.fullName && <p className="mt-2 text-sm text-red-600">{errors.fullName}</p>}
+                  {errors.name && <p className="mt-2 text-sm text-red-600">{errors.name}</p>}
                 </div>
                 
                 <div>
@@ -177,7 +229,7 @@ function DoctorSignup() {
                       value={formData.email}
                       onChange={handleChange}
                       className={`block w-full pl-10 pr-3 py-2 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500`}
-                      placeholder="doctor@example.com"
+                      placeholder="john.doe@example.com"
                     />
                   </div>
                   {errors.email && <p className="mt-2 text-sm text-red-600">{errors.email}</p>}
@@ -229,7 +281,7 @@ function DoctorSignup() {
                   <label htmlFor="specialization" className="block text-sm font-medium text-gray-700">Specialization</label>
                   <div className="mt-1 relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Book className="h-5 w-5 text-gray-400" />
+                      <Briefcase className="h-5 w-5 text-gray-400" />
                     </div>
                     <select
                       id="specialization"
@@ -239,9 +291,16 @@ function DoctorSignup() {
                       className={`block w-full pl-10 pr-3 py-2 border ${errors.specialization ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500`}
                     >
                       <option value="">Select Specialization</option>
-                      {specializations.map(spec => (
-                        <option key={spec} value={spec}>{spec}</option>
-                      ))}
+                      <option value="Cardiologist">Cardiologist</option>
+                      <option value="Dermatologist">Dermatologist</option>
+                      <option value="Neurologist">Neurologist</option>
+                      <option value="Pediatrician">Pediatrician</option>
+                      <option value="Orthopedist">Orthopedist</option>
+                      <option value="Gynecologist">Gynecologist</option>
+                      <option value="Psychiatrist">Psychiatrist</option>
+                      <option value="Urologist">Urologist</option>
+                      <option value="Ophthalmologist">Ophthalmologist</option>
+                      <option value="General Physician">General Physician</option>
                     </select>
                   </div>
                   {errors.specialization && <p className="mt-2 text-sm text-red-600">{errors.specialization}</p>}
@@ -253,17 +312,58 @@ function DoctorSignup() {
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <MapPin className="h-5 w-5 text-gray-400" />
                     </div>
-                    <input
-                      type="text"
+                    <select
                       id="location"
                       name="location"
                       value={formData.location}
                       onChange={handleChange}
                       className={`block w-full pl-10 pr-3 py-2 border ${errors.location ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500`}
-                      placeholder="New York, NY"
-                    />
+                    >
+                      <option value="">Select Location</option>
+                      <option value="New York">New York</option>
+                      <option value="Los Angeles">Los Angeles</option>
+                      <option value="Chicago">Chicago</option>
+                      <option value="Houston">Houston</option>
+                      <option value="Miami">Miami</option>
+                      <option value="Boston">Boston</option>
+                      <option value="San Francisco">San Francisco</option>
+                      <option value="Seattle">Seattle</option>
+                      <option value="Denver">Denver</option>
+                      <option value="Atlanta">Atlanta</option>
+                    </select>
                   </div>
                   {errors.location && <p className="mt-2 text-sm text-red-600">{errors.location}</p>}
+                </div>
+                
+                <div>
+                  <label htmlFor="experience" className="block text-sm font-medium text-gray-700">Years of Experience</label>
+                  <div className="mt-1">
+                    <input
+                      type="number"
+                      id="experience"
+                      name="experience"
+                      value={formData.experience}
+                      onChange={handleChange}
+                      min="0"
+                      className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="e.g. 10"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label htmlFor="education" className="block text-sm font-medium text-gray-700">Education & Qualifications</label>
+                  <div className="mt-1">
+                    <textarea
+                      id="education"
+                      name="education"
+                      rows="3"
+                      value={formData.education}
+                      onChange={handleChange}
+                      className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="MD from Harvard Medical School, Board Certified in Cardiology"
+                    ></textarea>
+                  </div>
                 </div>
                 
                 <div>
@@ -275,45 +375,30 @@ function DoctorSignup() {
                       rows="4"
                       value={formData.bio}
                       onChange={handleChange}
-                      className={`block w-full px-3 py-2 border ${errors.bio ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500`}
-                      placeholder="Tell potential patients about your experience, qualifications, and approach to care..."
+                      className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Tell patients about your professional experience and approach to healthcare..."
                     ></textarea>
                   </div>
-                  {errors.bio && <p className="mt-2 text-sm text-red-600">{errors.bio}</p>}
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Availability</label>
-                  <div className="bg-gray-50 p-4 rounded-md border border-gray-200">
-                    <div className="grid grid-cols-4 gap-4">
-                      <div className="col-span-1"></div>
-                      <div className="text-center text-sm font-medium text-gray-700">Morning</div>
-                      <div className="text-center text-sm font-medium text-gray-700">Afternoon</div>
-                      <div className="text-center text-sm font-medium text-gray-700">Evening</div>
-                      
-                      {Object.entries(availability).map(([day, slots]) => (
-                        <React.Fragment key={day}>
-                          <div className="text-sm font-medium text-gray-700 capitalize">{day}</div>
-                          {Object.entries(slots).map(([timeSlot, isAvailable]) => (
-                            <div key={`${day}-${timeSlot}`} className="flex justify-center">
-                              <input
-                                type="checkbox"
-                                id={`${day}-${timeSlot}`}
-                                checked={isAvailable}
-                                onChange={() => handleAvailabilityChange(day, timeSlot)}
-                                className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                              />
-                            </div>
-                          ))}
-                        </React.Fragment>
-                      ))}
-                    </div>
+                  <label htmlFor="fees" className="block text-sm font-medium text-gray-700">Consultation Fees ($)</label>
+                  <div className="mt-1">
+                    <input
+                      type="number"
+                      id="fees"
+                      name="fees"
+                      value={formData.fees}
+                      onChange={handleChange}
+                      min="0"
+                      className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="e.g. 100"
+                    />
                   </div>
-                  {errors.availability && <p className="mt-2 text-sm text-red-600">{errors.availability}</p>}
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Profile Picture</label>
+                  <label className="block text-sm font-medium text-gray-700">Profile Picture (Optional)</label>
                   <div className="mt-1 flex items-center">
                     <span className="inline-block h-12 w-12 rounded-full overflow-hidden bg-gray-100">
                       {formData.profileImage ? (
@@ -347,44 +432,66 @@ function DoctorSignup() {
             
             {step === 3 && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Review Your Information</h3>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Available Days</label>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    {days.map(day => (
+                      <div key={day} className="flex items-center">
+                        <input
+                          id={`day-${day}`}
+                          name="availableDays"
+                          type="checkbox"
+                          value={day}
+                          checked={formData.availableDays.includes(day)}
+                          onChange={(e) => handleCheckboxChange(e, 'availableDays')}
+                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                        <label htmlFor={`day-${day}`} className="ml-2 block text-sm text-gray-700">
+                          {day}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                  {errors.availableDays && <p className="mt-2 text-sm text-red-600">{errors.availableDays}</p>}
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Available Time Slots</label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {timeSlots.map(time => (
+                      <div key={time} className="flex items-center">
+                        <input
+                          id={`time-${time}`}
+                          name="availableTimeSlots"
+                          type="checkbox"
+                          value={time}
+                          checked={formData.availableTimeSlots.includes(time)}
+                          onChange={(e) => handleCheckboxChange(e, 'availableTimeSlots')}
+                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                        <label htmlFor={`time-${time}`} className="ml-2 block text-sm text-gray-700">
+                          {time}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                  {errors.availableTimeSlots && <p className="mt-2 text-sm text-red-600">{errors.availableTimeSlots}</p>}
+                </div>
                 
                 <div className="bg-gray-50 p-4 rounded-md border border-gray-200">
-                  <div className="grid grid-cols-2 gap-4">
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Review Your Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <h4 className="text-sm font-medium text-gray-500">Personal Details</h4>
-                      <p className="mt-1"><span className="font-medium">Name:</span> {formData.fullName}</p>
+                      <p><span className="font-medium">Name:</span> {formData.name}</p>
                       <p><span className="font-medium">Email:</span> {formData.email}</p>
-                    </div>
-                    
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500">Professional Details</h4>
-                      <p className="mt-1"><span className="font-medium">Specialization:</span> {formData.specialization}</p>
+                      <p><span className="font-medium">Specialization:</span> {formData.specialization}</p>
                       <p><span className="font-medium">Location:</span> {formData.location}</p>
                     </div>
-                  </div>
-                  
-                  <div className="mt-4">
-                    <h4 className="text-sm font-medium text-gray-500">Bio</h4>
-                    <p className="mt-1 text-sm text-gray-600">{formData.bio}</p>
-                  </div>
-                  
-                  <div className="mt-4">
-                    <h4 className="text-sm font-medium text-gray-500">Availability</h4>
-                    <div className="mt-2 text-sm">
-                      {Object.entries(availability).map(([day, slots]) => {
-                        const availableSlots = Object.entries(slots)
-                          .filter(([_, isAvailable]) => isAvailable)
-                          .map(([slot]) => slot);
-                        
-                        if (availableSlots.length === 0) return null;
-                        
-                        return (
-                          <p key={day} className="capitalize">
-                            <span className="font-medium">{day}:</span> {availableSlots.join(', ')}
-                          </p>
-                        );
-                      })}
+                    <div>
+                      <p><span className="font-medium">Experience:</span> {formData.experience} years</p>
+                      <p><span className="font-medium">Consultation Fee:</span> ${formData.fees}</p>
+                      <p><span className="font-medium">Available Days:</span> {formData.availableDays.join(', ')}</p>
+                      <p><span className="font-medium">Available Times:</span> {formData.availableTimeSlots.join(', ')}</p>
                     </div>
                   </div>
                 </div>
@@ -398,7 +505,7 @@ function DoctorSignup() {
                     </div>
                     <div className="ml-3">
                       <p className="text-sm text-yellow-700">
-                        By clicking "Complete Registration", you agree to our Terms of Service and Privacy Policy. Your information will be reviewed by our team before your profile is made public.
+                        By clicking "Complete Registration", you agree to our Terms of Service and Privacy Policy. You'll be able to receive appointment requests and manage patients.
                       </p>
                     </div>
                   </div>
@@ -428,9 +535,10 @@ function DoctorSignup() {
               ) : (
                 <button
                   type="submit"
-                  className="ml-auto bg-blue-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  disabled={isSubmitting}
+                  className={`ml-auto bg-blue-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
                 >
-                  Complete Registration
+                  {isSubmitting ? 'Submitting...' : 'Complete Registration'}
                 </button>
               )}
             </div>
