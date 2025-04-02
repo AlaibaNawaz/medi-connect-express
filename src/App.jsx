@@ -6,6 +6,8 @@ import Login from './pages/Login.jsx';
 import PatientDashboard from './pages/PatientDashboard.jsx';
 import DoctorDashboard from './pages/DoctorDashboard.jsx';
 import AdminDashboard from './pages/AdminDashboard.jsx';
+import PatientSignup from './pages/PatientSignup.jsx';
+import DoctorSignup from './pages/DoctorSignup.jsx';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -16,6 +18,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login setUser={setUser} />} />
+          <Route path="/patient-signup" element={<PatientSignup />} />
+          <Route path="/doctor-signup" element={<DoctorSignup />} />
           <Route path="/patient-dashboard" element={<PatientDashboard user={user} />} />
           <Route path="/doctor-dashboard" element={<DoctorDashboard user={user} />} />
           <Route path="/admin-dashboard" element={<AdminDashboard user={user} />} />
