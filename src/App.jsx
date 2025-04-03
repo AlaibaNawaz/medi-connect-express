@@ -17,86 +17,90 @@ import PatientProfile from './pages/PatientProfile.jsx';
 import AppointmentManagement from './pages/AppointmentManagement.jsx';
 import PrescriptionManagement from './pages/PrescriptionManagement.jsx';
 import NotFound from './pages/NotFound.jsx';
+import Navbar from './components/Navbar.jsx';
 
 function App() {
   return (
     <Router>
       <AuthProvider>
-        <div className="min-h-screen bg-gray-50">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/patient-signup" element={<PatientSignup />} />
-            <Route path="/doctor-signup" element={<DoctorSignup />} />
-            <Route path="/doctor-list" element={<DoctorList />} />
-            <Route path="/doctor/:doctorId" element={<DoctorProfile />} />
-            
-            <Route 
-              path="/patient-dashboard" 
-              element={
-                <ProtectedRoute userType="patient">
-                  <PatientDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            
-            <Route 
-              path="/doctor-dashboard" 
-              element={
-                <ProtectedRoute userType="doctor">
-                  <DoctorDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            
-            <Route 
-              path="/admin-dashboard" 
-              element={
-                <ProtectedRoute userType="admin">
-                  <AdminDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            
-            <Route 
-              path="/patient-profile" 
-              element={
-                <ProtectedRoute userType="patient">
-                  <PatientProfile />
-                </ProtectedRoute>
-              } 
-            />
-            
-            <Route 
-              path="/book-appointment/:doctorId" 
-              element={
-                <ProtectedRoute userType="patient">
-                  <AppointmentBooking />
-                </ProtectedRoute>
-              } 
-            />
-            
-            <Route 
-              path="/appointments" 
-              element={
-                <ProtectedRoute>
-                  <AppointmentManagement />
-                </ProtectedRoute>
-              } 
-            />
-            
-            <Route 
-              path="/prescriptions" 
-              element={
-                <ProtectedRoute>
-                  <PrescriptionManagement />
-                </ProtectedRoute>
-              } 
-            />
+        <div className="min-h-screen bg-gray-50 flex flex-col">
+          <Navbar />
+          <div className="flex-grow">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/patient-signup" element={<PatientSignup />} />
+              <Route path="/doctor-signup" element={<DoctorSignup />} />
+              <Route path="/doctor-list" element={<DoctorList />} />
+              <Route path="/doctor/:doctorId" element={<DoctorProfile />} />
+              
+              <Route 
+                path="/patient-dashboard" 
+                element={
+                  <ProtectedRoute userType="patient">
+                    <PatientDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              <Route 
+                path="/doctor-dashboard" 
+                element={
+                  <ProtectedRoute userType="doctor">
+                    <DoctorDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              <Route 
+                path="/admin-dashboard" 
+                element={
+                  <ProtectedRoute userType="admin">
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              <Route 
+                path="/patient-profile" 
+                element={
+                  <ProtectedRoute userType="patient">
+                    <PatientProfile />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              <Route 
+                path="/book-appointment/:doctorId" 
+                element={
+                  <ProtectedRoute userType="patient">
+                    <AppointmentBooking />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              <Route 
+                path="/appointments" 
+                element={
+                  <ProtectedRoute>
+                    <AppointmentManagement />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              <Route 
+                path="/prescriptions" 
+                element={
+                  <ProtectedRoute>
+                    <PrescriptionManagement />
+                  </ProtectedRoute>
+                } 
+              />
 
-            {/* Add a catch-all 404 route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+              {/* Add a catch-all 404 route */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </div>
         </div>
       </AuthProvider>
     </Router>
