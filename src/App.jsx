@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home.jsx';
@@ -18,6 +17,7 @@ import AppointmentManagement from './pages/AppointmentManagement.jsx';
 import PrescriptionManagement from './pages/PrescriptionManagement.jsx';
 import NotFound from './pages/NotFound.jsx';
 import Navbar from './components/Navbar.jsx';
+import ConditionalHomeRoute from './components/ConditionalHomeRoute.jsx';
 
 function App() {
   return (
@@ -27,7 +27,8 @@ function App() {
           <Navbar />
           <div className="flex-grow">
             <Routes>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<ConditionalHomeRoute />} />
+              
               <Route path="/login" element={<Login />} />
               <Route path="/patient-signup" element={<PatientSignup />} />
               <Route path="/doctor-signup" element={<DoctorSignup />} />
@@ -97,7 +98,6 @@ function App() {
                 } 
               />
 
-              {/* Add a catch-all 404 route */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
