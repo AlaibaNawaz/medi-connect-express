@@ -96,7 +96,7 @@ function Home() {
                   <option value="cardiology">Cardiology</option>
                   <option value="dermatology">Dermatology</option>
                   <option value="neurology">Neurology</option>
-                  <option value="pediatrics">Pediatrics</pediatrics>
+                  <option value="pediatrics">Pediatrics</option>
                   <option value="orthopedics">Orthopedics</option>
                 </select>
               </div>
@@ -107,7 +107,7 @@ function Home() {
                   <option value="los-angeles">Los Angeles</option>
                   <option value="chicago">Chicago</option>
                   <option value="houston">Houston</option>
-                  <option value="miami">Miami</miami>
+                  <option value="miami">Miami</option>
                 </select>
               </div>
               <button className="bg-blue-600 text-white p-3 rounded hover:bg-blue-700">
