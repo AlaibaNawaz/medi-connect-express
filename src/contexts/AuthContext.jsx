@@ -159,7 +159,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setUser(null);
-    navigate('/login');
+    navigate('/');  // Changed from '/login' to '/' to redirect to home page
     toast({
       title: "Logged Out",
       description: "You have been logged out successfully",
