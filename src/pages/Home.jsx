@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { UserPlus, Search, Calendar, Star, ChevronDown, User, Shield } from 'lucide-react';
@@ -83,40 +82,6 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Navigation Bar */}
-      <nav className="bg-white shadow-md py-4 px-6 sticky top-0 z-50">
-        <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center">
-            <h1 className="text-2xl font-bold text-blue-600">MediConnect Express</h1>
-          </div>
-          <div className="hidden md:flex space-x-6">
-            <a href="#" className="text-gray-700 hover:text-blue-600">Home</a>
-            <a href="#about" className="text-gray-700 hover:text-blue-600">About Us</a>
-            <a href="#doctors" className="text-gray-700 hover:text-blue-600">Doctors</a>
-            <a href="#how-it-works" className="text-gray-700 hover:text-blue-600">How It Works</a>
-            <a href="#contact" className="text-gray-700 hover:text-blue-600">Contact</a>
-          </div>
-          <div className="flex space-x-4">
-            <Link to="/login" className="text-blue-600 hover:text-blue-800">Login</Link>
-            <div className="relative group">
-              <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center">
-                Sign Up <ChevronDown className="ml-1 h-4 w-4" />
-              </button>
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
-                <Link to="/patient-signup" className="block px-4 py-2 text-gray-700 hover:bg-blue-100">
-                  <User className="inline-block mr-2 h-4 w-4" />
-                  Sign Up as Patient
-                </Link>
-                <Link to="/doctor-signup" className="block px-4 py-2 text-gray-700 hover:bg-blue-100">
-                  <Shield className="inline-block mr-2 h-4 w-4" />
-                  Sign Up as Doctor
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
-
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-500 to-blue-700 text-white py-20">
         <div className="container mx-auto px-6 text-center">
@@ -131,7 +96,7 @@ function Home() {
                   <option value="cardiology">Cardiology</option>
                   <option value="dermatology">Dermatology</option>
                   <option value="neurology">Neurology</option>
-                  <option value="pediatrics">Pediatrics</option>
+                  <option value="pediatrics">Pediatrics</pediatrics>
                   <option value="orthopedics">Orthopedics</option>
                 </select>
               </div>
@@ -142,7 +107,7 @@ function Home() {
                   <option value="los-angeles">Los Angeles</option>
                   <option value="chicago">Chicago</option>
                   <option value="houston">Houston</option>
-                  <option value="miami">Miami</option>
+                  <option value="miami">Miami</miami>
                 </select>
               </div>
               <button className="bg-blue-600 text-white p-3 rounded hover:bg-blue-700">
@@ -152,7 +117,7 @@ function Home() {
           </div>
           
           <div className="mt-10 flex flex-col md:flex-row justify-center gap-6">
-            <Link to="/doctors" className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
+            <Link to="/doctor-list" className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
               Find a Doctor
             </Link>
             <Link to="/login" className="bg-blue-800 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-900 transition">
@@ -242,7 +207,7 @@ function Home() {
           </div>
           
           <div className="text-center mt-12">
-            <Link to="/signup" className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition inline-block">
+            <Link to="/patient-signup" className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition inline-block">
               Get Started
             </Link>
           </div>
