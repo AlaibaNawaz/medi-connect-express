@@ -23,7 +23,7 @@ const Navbar = () => {
         <div className="flex justify-between items-center">
           {/* Logo and main site name */}
           <Link to="/" className="flex items-center gap-2">
-            <span className="text-blue-600 text-xl font-bold">MediConnect</span>
+            <span className="text-blue-600 text-xl font-bold">CureConnect</span>
           </Link>
 
           {/* Main Navigation Links */}

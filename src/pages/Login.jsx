@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -13,7 +12,6 @@ function Login() {
   const { login } = useAuth();
   const location = useLocation();
   
-  // Check if there's a message in the location state (e.g., from registration)
   React.useEffect(() => {
     if (location.state?.message) {
       toast({
@@ -23,7 +21,6 @@ function Login() {
     }
   }, [location]);
 
-  // Mock credentials
   const mockCredentials = {
     patient: { email: 'patient@example.com', password: 'patient123' },
     doctor: { email: 'doctor@example.com', password: 'doctor123' },
@@ -55,7 +52,7 @@ function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center text-blue-600">Login to MediConnect</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center text-blue-600">Login to CureConnect</h2>
         
         <div className="mb-4">
           <div className="flex mb-4">
