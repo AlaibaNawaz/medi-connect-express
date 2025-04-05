@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { 
   ArrowLeft,
   Save,
@@ -11,18 +11,39 @@ import { toast } from '../components/ui/use-toast';
 
 function DoctorProfile() {
   const navigate = useNavigate();
-  const { user, updateUserProfile } = useAuth();
+  const params = useParams();
+  const { user, updateUserProfile, doctors } = useAuth();
+  
+  // Determine if viewing own profile or another doctor's profile
+  const isOwnProfile = !params.doctorId;
+  const profileUser = isOwnProfile ? user : doctors?.find(d => d.id === params.doctorId);
   
   const [formData, setFormData] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    phone: user?.phone || '',
-    specialization: user?.specialization || '',
-    bio: user?.bio || '',
-    experience: user?.experience || '',
-    education: user?.education || '',
-    location: user?.location || ''
+    name: profileUser?.name || '',
+    email: profileUser?.email || '',
+    phone: profileUser?.phone || '',
+    specialization: profileUser?.specialization || '',
+    bio: profileUser?.bio || '',
+    experience: profileUser?.experience || '',
+    education: profileUser?.education || '',
+    location: profileUser?.location || ''
   });
+
+  // Update formData if profileUser changes
+  useEffect(() => {
+    if (profileUser) {
+      setFormData({
+        name: profileUser.name || '',
+        email: profileUser.email || '',
+        phone: profileUser.phone || '',
+        specialization: profileUser.specialization || '',
+        bio: profileUser.bio || '',
+        experience: profileUser.experience || '',
+        education: profileUser.education || '',
+        location: profileUser.location || ''
+      });
+    }
+  }, [profileUser]);
   
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -66,17 +87,21 @@ function DoctorProfile() {
           <div className="bg-white rounded-lg shadow-sm overflow-hidden">
             <div className="p-6 border-b">
               <h1 className="text-2xl font-bold text-gray-800">Doctor Profile</h1>
-              <p className="text-gray-600">Update your personal and professional information</p>
+              <p className="text-gray-600">
+                {isOwnProfile 
+                  ? "Update your personal and professional information" 
+                  : "View doctor's information"}
+              </p>
             </div>
             
             <form onSubmit={handleSubmit} className="p-6">
               <div className="flex flex-col md:flex-row gap-6 mb-6">
                 <div className="w-full md:w-1/3 flex flex-col items-center">
                   <div className="w-32 h-32 rounded-full bg-blue-100 flex items-center justify-center mb-4">
-                    {user?.image ? (
+                    {profileUser?.image ? (
                       <img 
-                        src={user.image} 
-                        alt={user.name} 
+                        src={profileUser.image} 
+                        alt={profileUser.name} 
                         className="w-full h-full object-cover rounded-full"
                       />
                     ) : (
@@ -85,9 +110,11 @@ function DoctorProfile() {
                       </span>
                     )}
                   </div>
-                  <button type="button" className="text-sm text-blue-600 hover:underline">
-                    Change Profile Picture
-                  </button>
+                  {isOwnProfile && (
+                    <button type="button" className="text-sm text-blue-600 hover:underline">
+                      Change Profile Picture
+                    </button>
+                  )}
                 </div>
                 
                 <div className="flex-1 space-y-4">
@@ -103,6 +130,7 @@ function DoctorProfile() {
                         value={formData.name}
                         onChange={handleChange}
                         className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        readOnly={!isOwnProfile}
                       />
                     </div>
                     
@@ -135,6 +163,7 @@ function DoctorProfile() {
                         value={formData.phone}
                         onChange={handleChange}
                         className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        readOnly={!isOwnProfile}
                       />
                     </div>
                     
@@ -149,6 +178,7 @@ function DoctorProfile() {
                         value={formData.specialization}
                         onChange={handleChange}
                         className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        readOnly={!isOwnProfile}
                       />
                     </div>
                   </div>
@@ -168,6 +198,7 @@ function DoctorProfile() {
                     onChange={handleChange}
                     className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Write a short professional description about yourself"
+                    readOnly={!isOwnProfile}
                   ></textarea>
                 </div>
                 
@@ -184,6 +215,7 @@ function DoctorProfile() {
                       onChange={handleChange}
                       className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="List your degrees, certifications and qualifications"
+                      readOnly={!isOwnProfile}
                     ></textarea>
                   </div>
                   
@@ -199,6 +231,7 @@ function DoctorProfile() {
                       onChange={handleChange}
                       className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Years of experience"
+                      readOnly={!isOwnProfile}
                     />
                   </div>
                 </div>
@@ -215,19 +248,22 @@ function DoctorProfile() {
                     onChange={handleChange}
                     className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="City, State"
+                    readOnly={!isOwnProfile}
                   />
                 </div>
               </div>
               
-              <div className="mt-8">
-                <button 
-                  type="submit"
-                  className="flex items-center justify-center px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                >
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Changes
-                </button>
-              </div>
+              {isOwnProfile && (
+                <div className="mt-8">
+                  <button 
+                    type="submit"
+                    className="flex items-center justify-center px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  >
+                    <Save className="h-4 w-4 mr-2" />
+                    Save Changes
+                  </button>
+                </div>
+              )}
             </form>
           </div>
         </div>

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home.jsx';
@@ -67,6 +68,16 @@ function App() {
                 element={
                   <ProtectedRoute userType="patient">
                     <PatientProfile />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              {/* Add the doctor profile route */}
+              <Route 
+                path="/doctor-profile" 
+                element={
+                  <ProtectedRoute userType="doctor">
+                    <DoctorProfile />
                   </ProtectedRoute>
                 } 
               />
