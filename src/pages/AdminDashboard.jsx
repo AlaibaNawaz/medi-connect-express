@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Users, Settings, ChevronDown, User, Shield, BarChart, Search, Check, X, Edit, Calendar, Star, FileText, Download } from 'lucide-react';
+import { Users, ChevronDown, User, Shield, BarChart, Search, Check, X, Edit, Calendar, Star } from 'lucide-react';
 
 function AdminDashboard() {
   const { user } = useAuth();
@@ -284,24 +284,6 @@ function AdminDashboard() {
                   <Star className="mr-3 h-5 w-5" />
                   <span>Reviews & Feedback</span>
                 </button>
-                <button
-                  onClick={() => setActiveTab('reports')}
-                  className={`w-full flex items-center px-4 py-2 text-left rounded-md ${
-                    activeTab === 'reports' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  <FileText className="mr-3 h-5 w-5" />
-                  <span>Reports & Analytics</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('settings')}
-                  className={`w-full flex items-center px-4 py-2 text-left rounded-md ${
-                    activeTab === 'settings' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  <Settings className="mr-3 h-5 w-5" />
-                  <span>System Settings</span>
-                </button>
               </div>
             </nav>
 
@@ -324,12 +306,6 @@ function AdminDashboard() {
                   >
                     <Users className="mr-2 h-4 w-4" />
                     View New Patients (12)
-                  </button>
-                  <button 
-                    className="w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded flex items-center"
-                  >
-                    <FileText className="mr-2 h-4 w-4" />
-                    Generate Monthly Report
                   </button>
                 </div>
               </div>
@@ -849,86 +825,6 @@ function AdminDashboard() {
                 <div className="mt-6 flex justify-center">
                   <button className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                     Load More Reviews
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Reports & Analytics */}
-            {activeTab === 'reports' && (
-              <div className="bg-white shadow rounded-lg p-6">
-                <div className="border-b border-gray-200 mb-6">
-                  <h2 className="text-xl font-semibold text-gray-800 pb-4">Reports & Analytics</h2>
-                </div>
-
-                <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <h3 className="font-medium text-gray-700 mb-2">Report Type</h3>
-                    <select className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500">
-                      <option value="appointments">Appointment Reports</option>
-                      <option value="users">User Reports</option>
-                      <option value="revenue">Revenue Reports</option>
-                      <option value="performance">Performance Reports</option>
-                    </select>
-                  </div>
-                  <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <h3 className="font-medium text-gray-700 mb-2">Date Range</h3>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="block text-sm text-gray-600 mb-1">From</label>
-                        <input
-                          type="date"
-                          className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm text-gray-600 mb-1">To</label>
-                        <input
-                          type="date"
-                          className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 flex items-end">
-                    <button
-                      className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                    >
-                      Generate Report
-                    </button>
-                  </div>
-                </div>
-
-                <div className="mb-8">
-                  <h3 className="text-lg font-medium text-gray-700 mb-4">Appointment Trends</h3>
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 h-64 flex items-center justify-center">
-                    <p className="text-gray-500">Chart showing appointment trends over time would be displayed here.</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-700 mb-4">Top Specializations</h3>
-                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 h-64 flex items-center justify-center">
-                      <p className="text-gray-500">Chart showing most popular specializations would be displayed here.</p>
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-700 mb-4">Patient Demographics</h3>
-                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 h-64 flex items-center justify-center">
-                      <p className="text-gray-500">Chart showing patient demographics would be displayed here.</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 flex justify-center gap-4">
-                  <button className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                    <Download className="h-4 w-4 mr-2" />
-                    Export as PDF
-                  </button>
-                  <button className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                    <Download className="h-4 w-4 mr-2" />
-                    Export as CSV
                   </button>
                 </div>
               </div>
