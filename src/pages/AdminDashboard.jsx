@@ -1,11 +1,22 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Users, ChevronDown, User, Shield, BarChart, Search, Check, X, Edit, Calendar, Star } from 'lucide-react';
+import { Users, ChevronDown, User, Shield, BarChart, Search, Check, X, Edit, Calendar, Star, Mail, Settings } from 'lucide-react';
+import { Calendar as CalendarComponent } from '../components/ui/calendar';
+import { toast } from '../components/ui/use-toast';
 
 function AdminDashboard() {
-  const { user } = useAuth();
+  const { user, updateUserProfile } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [profileFormData, setProfileFormData] = useState({
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    password: '',
+    confirmPassword: ''
+  });
   
   // Sample data for UI demonstration
   const stats = {
@@ -169,6 +180,32 @@ function AdminDashboard() {
     }
   ];
   
+  const timeSlots = [
+    { id: 1, time: '9:00 AM', available: true },
+    { id: 2, time: '9:30 AM', available: false },
+    { id: 3, time: '10:00 AM', available: true },
+    { id: 4, time: '10:30 AM', available: true },
+    { id: 5, time: '11:00 AM', available: false },
+    { id: 6, time: '11:30 AM', available: true },
+    { id: 7, time: '1:00 PM', available: true },
+    { id: 8, time: '1:30 PM', available: false },
+    { id: 9, time: '2:00 PM', available: true },
+    { id: 10, time: '2:30 PM', available: true },
+    { id: 11, time: '3:00 PM', available: false },
+    { id: 12, time: '3:30 PM', available: true },
+    { id: 13, time: '4:00 PM', available: true },
+    { id: 14, time: '4:30 PM', available: true },
+  ];
+  
+  // Email settings state
+  const [emailSettings, setEmailSettings] = useState({
+    confirmationEnabled: true,
+    reminderEnabled: true,
+    reminderTimeInHours: 24,
+    confirmationTemplate: "Dear {{patientName}},\n\nYour appointment with {{doctorName}} is confirmed for {{appointmentDate}} at {{appointmentTime}}.\n\nThank you,\nMediConnect Team",
+    reminderTemplate: "Dear {{patientName}},\n\nThis is a reminder of your upcoming appointment with {{doctorName}} on {{appointmentDate}} at {{appointmentTime}}.\n\nThank you,\nMediConnect Team"
+  });
+  
   // If user is not logged in, show a message to login
   if (!user) {
     return (
@@ -205,6 +242,80 @@ function AdminDashboard() {
     // In a real app, this would make an API call to approve the flagged review
     console.log(`Approving review ${reviewId}`);
     alert(`Review ${reviewId} has been approved.`);
+  };
+  
+  // Function to handle profile form changes
+  const handleProfileChange = (e) => {
+    const { name, value } = e.target;
+    setProfileFormData(prev => ({ ...prev, [name]: value }));
+  };
+  
+  // Function to save profile changes
+  const handleProfileSubmit = (e) => {
+    e.preventDefault();
+    
+    // Basic validation
+    if (profileFormData.password && profileFormData.password !== profileFormData.confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Passwords do not match",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Prepare data for update (excluding confirmPassword and empty password)
+    const updatedData = { ...profileFormData };
+    delete updatedData.confirmPassword;
+    if (!updatedData.password) delete updatedData.password;
+    
+    // Update profile
+    updateUserProfile(updatedData);
+    setEditingProfile(false);
+    
+    toast({
+      title: "Profile Updated",
+      description: "Your profile has been updated successfully",
+    });
+  };
+  
+  // Function to handle time slot selection
+  const handleTimeSlotToggle = (slotId) => {
+    // In a real app, this would update the database
+    console.log(`Toggling availability for slot ${slotId}`);
+    toast({
+      title: "Time Slot Updated",
+      description: "Availability status has been updated",
+    });
+  };
+  
+  // Function to handle email settings changes
+  const handleEmailSettingChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setEmailSettings(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+  
+  // Function to save email settings
+  const handleEmailSettingsSave = () => {
+    // In a real app, this would save to database
+    console.log("Saving email settings:", emailSettings);
+    toast({
+      title: "Email Settings Saved",
+      description: "Your email notification settings have been updated",
+    });
+  };
+  
+  // Function to send test email
+  const handleSendTestEmail = () => {
+    // In a real app, this would trigger an actual email
+    console.log("Sending test email");
+    toast({
+      title: "Test Email Sent",
+      description: "A test email has been sent to your email address",
+    });
   };
 
   return (
@@ -284,6 +395,33 @@ function AdminDashboard() {
                   <Star className="mr-3 h-5 w-5" />
                   <span>Reviews & Feedback</span>
                 </button>
+                <button
+                  onClick={() => setActiveTab('profile')}
+                  className={`w-full flex items-center px-4 py-2 text-left rounded-md ${
+                    activeTab === 'profile' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <Settings className="mr-3 h-5 w-5" />
+                  <span>Profile Settings</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('calendar')}
+                  className={`w-full flex items-center px-4 py-2 text-left rounded-md ${
+                    activeTab === 'calendar' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <Calendar className="mr-3 h-5 w-5" />
+                  <span>Appointment Calendar</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('email')}
+                  className={`w-full flex items-center px-4 py-2 text-left rounded-md ${
+                    activeTab === 'email' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <Mail className="mr-3 h-5 w-5" />
+                  <span>Email Notifications</span>
+                </button>
               </div>
             </nav>
 
@@ -306,6 +444,13 @@ function AdminDashboard() {
                   >
                     <Users className="mr-2 h-4 w-4" />
                     View New Patients (12)
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('email')}
+                    className="w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded flex items-center"
+                  >
+                    <Mail className="mr-2 h-4 w-4" />
+                    Send Email Notifications
                   </button>
                 </div>
               </div>
@@ -825,6 +970,300 @@ function AdminDashboard() {
                 <div className="mt-6 flex justify-center">
                   <button className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                     Load More Reviews
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            {/* Profile Settings */}
+            {activeTab === 'profile' && (
+              <div className="bg-white shadow rounded-lg p-6">
+                <div className="border-b border-gray-200 mb-6">
+                  <h2 className="text-xl font-semibold text-gray-800 pb-4">Profile Settings</h2>
+                </div>
+                
+                <form onSubmit={handleProfileSubmit}>
+                  <div className="mb-6">
+                    <div className="flex items-center mb-4">
+                      <div className="mr-4">
+                        <img 
+                          src="https://randomuser.me/api/portraits/men/1.jpg" 
+                          alt="Admin avatar" 
+                          className="h-20 w-20 rounded-full"
+                        />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-medium">{user.name}</h3>
+                        <p className="text-gray-600">Administrator</p>
+                        <button 
+                          type="button"
+                          className="mt-2 text-sm text-blue-600 hover:text-blue-800"
+                        >
+                          Change profile picture
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Full Name
+                      </label>
+                      <input
+                        type="text"
+                        name="name"
+                        value={profileFormData.name}
+                        onChange={handleProfileChange}
+                        className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={profileFormData.email}
+                        onChange={handleProfileChange}
+                        className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Phone Number
+                      </label>
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={profileFormData.phone}
+                        onChange={handleProfileChange}
+                        className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-6">
+                    <h3 className="text-md font-medium mb-3">Change Password</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          New Password
+                        </label>
+                        <input
+                          type="password"
+                          name="password"
+                          value={profileFormData.password}
+                          onChange={handleProfileChange}
+                          className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Leave blank to keep current password</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Confirm New Password
+                        </label>
+                        <input
+                          type="password"
+                          name="confirmPassword"
+                          value={profileFormData.confirmPassword}
+                          onChange={handleProfileChange}
+                          className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex justify-end">
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    >
+                      Save Changes
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+            
+            {/* Appointment Calendar */}
+            {activeTab === 'calendar' && (
+              <div className="bg-white shadow rounded-lg p-6">
+                <div className="border-b border-gray-200 mb-6">
+                  <h2 className="text-xl font-semibold text-gray-800 pb-4">Appointment Calendar</h2>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="md:col-span-1 border border-gray-200 rounded-lg p-4">
+                    <h3 className="text-lg font-medium mb-3">Select Date</h3>
+                    <CalendarComponent
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={setSelectedDate}
+                      className="rounded-md border shadow p-3 pointer-events-auto"
+                    />
+                    
+                    <div className="mt-4">
+                      <h4 className="font-medium text-gray-700 mb-2">Legend</h4>
+                      <div className="flex items-center mb-2">
+                        <div className="h-4 w-4 bg-green-100 border border-green-300 rounded mr-2"></div>
+                        <span className="text-sm">Available</span>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="h-4 w-4 bg-gray-100 border border-gray-300 rounded mr-2"></div>
+                        <span className="text-sm">Not Available</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="md:col-span-2">
+                    <h3 className="text-lg font-medium mb-3">Available Time Slots for {selectedDate ? selectedDate.toLocaleDateString() : 'Selected Date'}</h3>
+                    
+                    <div className="mb-4">
+                      <button 
+                        className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 mr-2"
+                      >
+                        Set All Available
+                      </button>
+                      <button 
+                        className="px-3 py-1 bg-gray-600 text-white text-sm rounded hover:bg-gray-700"
+                      >
+                        Set All Unavailable
+                      </button>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                      {timeSlots.map((slot) => (
+                        <div 
+                          key={slot.id}
+                          onClick={() => handleTimeSlotToggle(slot.id)}
+                          className={`p-2 rounded-md border text-center cursor-pointer ${
+                            slot.available 
+                              ? 'bg-green-50 border-green-200 hover:bg-green-100' 
+                              : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                          }`}
+                        >
+                          <p className="font-medium">{slot.time}</p>
+                          <p className="text-xs">{slot.available ? 'Available' : 'Not Available'}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* Email Notifications */}
+            {activeTab === 'email' && (
+              <div className="bg-white shadow rounded-lg p-6">
+                <div className="border-b border-gray-200 mb-6">
+                  <h2 className="text-xl font-semibold text-gray-800 pb-4">Email Notification Settings</h2>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <h3 className="text-lg font-medium mb-3">Appointment Confirmation</h3>
+                    
+                    <div className="flex items-center mb-4">
+                      <input 
+                        type="checkbox" 
+                        id="confirmationEnabled"
+                        name="confirmationEnabled"
+                        checked={emailSettings.confirmationEnabled}
+                        onChange={handleEmailSettingChange}
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <label htmlFor="confirmationEnabled" className="ml-2 block text-sm">
+                        Send confirmation emails
+                      </label>
+                    </div>
+                    
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Email Template
+                      </label>
+                      <textarea
+                        name="confirmationTemplate"
+                        value={emailSettings.confirmationTemplate}
+                        onChange={handleEmailSettingChange}
+                        rows={5}
+                        className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 text-sm"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Use {{patientName}}, {{doctorName}}, {{appointmentDate}}, {{appointmentTime}} as placeholders.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <h3 className="text-lg font-medium mb-3">Appointment Reminder</h3>
+                    
+                    <div className="flex items-center mb-4">
+                      <input 
+                        type="checkbox" 
+                        id="reminderEnabled"
+                        name="reminderEnabled"
+                        checked={emailSettings.reminderEnabled}
+                        onChange={handleEmailSettingChange}
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <label htmlFor="reminderEnabled" className="ml-2 block text-sm">
+                        Send reminder emails
+                      </label>
+                    </div>
+                    
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Send Reminder
+                      </label>
+                      <div className="flex items-center">
+                        <input 
+                          type="number" 
+                          name="reminderTimeInHours"
+                          value={emailSettings.reminderTimeInHours}
+                          onChange={handleEmailSettingChange}
+                          min="1" 
+                          max="72" 
+                          className="w-20 p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">hours before appointment</span>
+                      </div>
+                    </div>
+                    
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Email Template
+                      </label>
+                      <textarea
+                        name="reminderTemplate"
+                        value={emailSettings.reminderTemplate}
+                        onChange={handleEmailSettingChange}
+                        rows={5}
+                        className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 text-sm"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Use {{patientName}}, {{doctorName}}, {{appointmentDate}}, {{appointmentTime}} as placeholders.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="border-t border-gray-200 pt-4 flex items-center justify-between">
+                  <button 
+                    onClick={handleSendTestEmail}
+                    className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                  >
+                    Send Test Email
+                  </button>
+                  
+                  <button 
+                    onClick={handleEmailSettingsSave}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Save Email Settings
                   </button>
                 </div>
               </div>
