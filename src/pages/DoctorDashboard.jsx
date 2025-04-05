@@ -51,7 +51,7 @@ function DoctorDashboard() {
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-blue-600">MediConnect</h1>
+          <h1 className="text-2xl font-bold text-blue-600">CureConnect</h1>
           <div className="flex items-center space-x-4">
             <div className="text-right">
               <p className="text-sm text-gray-500">Welcome back,</p>
@@ -107,8 +107,8 @@ function DoctorDashboard() {
               </Link>
               
               <Link to="/doctor-profile" className="flex items-center space-x-3 px-4 py-2 rounded-md hover:bg-gray-100">
-                <Settings className="h-5 w-5" />
-                <span>Account Settings</span>
+                <User className="h-5 w-5" />
+                <span>Profile</span>
               </Link>
               
               <button 
